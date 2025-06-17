@@ -1,0 +1,52 @@
+{
+  "name": "maestro-energy-management",
+  "version": "1.0.0",
+  "description": "IoT Energy Management System - Smart Plug Control with Solar/Battery Ready Architecture",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "type-check": "turbo run type-check",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "eslint": "^8.50.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.3",
+    "turbo": "^1.10.14",
+    "typescript": "^5.2.2"
+  },
+  "packageManager": "pnpm@8.7.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/maestro-energy-management"
+  },
+  "keywords": [
+    "iot",
+    "energy-management",
+    "smart-plug",
+    "tuya",
+    "solar",
+    "battery",
+    "typescript",
+    "react",
+    "nodejs"
+  ],
+  "author": "Maestro Energy Team",
+  "license": "MIT"
+}

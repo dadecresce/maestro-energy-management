@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  # MongoDB for device metadata and user data
+  mongodb:
+    image: mongo:7.0
+    container_name: maestro-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: maestro
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - maestro-network
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7.2-alpine
+    container_name: maestro-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass redispassword
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - maestro-network
+
+  # Backend API service
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+      target: development
+    container_name: maestro-backend
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/maestro?authSource=admin
+      REDIS_URL: redis://:redispassword@redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      TUYA_CLIENT_ID: ${TUYA_CLIENT_ID}
+      TUYA_CLIENT_SECRET: ${TUYA_CLIENT_SECRET}
+      TUYA_REDIRECT_URI: ${TUYA_REDIRECT_URI}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./apps/backend:/app
+      - /app/node_modules
+    networks:
+      - maestro-network
+    command: npm run dev
+
+  # Frontend React application
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      target: development
+    container_name: maestro-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: http://localhost:3001
+      VITE_WS_URL: ws://localhost:3001
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules
+    networks:
+      - maestro-network
+    command: npm run dev
+
+  # InfluxDB for future time-series energy data (Phase 2)
+  influxdb:
+    image: influxdb:2.7
+    container_name: maestro-influxdb
+    restart: unless-stopped
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: password123
+      DOCKER_INFLUXDB_INIT_ORG: maestro
+      DOCKER_INFLUXDB_INIT_BUCKET: energy-data
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: maestro-super-secret-token
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    networks:
+      - maestro-network
+    profiles:
+      - phase2
+
+volumes:
+  mongodb_data:
+  redis_data:
+  influxdb_data:
+
+networks:
+  maestro-network:
+    driver: bridge

@@ -1,0 +1,44 @@
+{
+  "name": "@maestro/protocol-adapters",
+  "version": "1.0.0",
+  "description": "Protocol adapters for various IoT communication protocols",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@maestro/shared": "workspace:*",
+    "zod": "^3.22.4",
+    "winston": "^3.10.0",
+    "axios": "^1.5.0",
+    "crypto-js": "^4.1.1"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
+    "@types/jest": "^29.5.5",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "@tuya/tuya-connector-nodejs": "^1.4.0",
+    "modbus-serial": "^8.0.13",
+    "mqtt": "^5.0.3"
+  },
+  "peerDependenciesMeta": {
+    "@tuya/tuya-connector-nodejs": {
+      "optional": false
+    },
+    "modbus-serial": {
+      "optional": true
+    },
+    "mqtt": {
+      "optional": true
+    }
+  }
+}
