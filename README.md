@@ -1,11 +1,12 @@
-# 🌟 Maestro Energy Management System
+# 🔌 Maestro Energy Management System
 
-[![CI/CD Pipeline](https://github.com/your-org/maestro-energy-management/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/your-org/maestro-energy-management/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-18+-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 
-> **Next-generation IoT energy management platform** - Control smart plugs, integrate solar systems, and optimize energy consumption with an intuitive web interface.
+> **Smart Plug Control with Solar/Battery Ready Architecture** - A cloud-first IoT energy management system designed to replace the Tuya native app with superior web-based control.
 
 ## 📖 Overview
 
@@ -85,7 +86,7 @@ Built with future-ready, microservices-inspired architecture:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-org/maestro-energy-management.git
+   git clone https://github.com/dadecresce/maestro-energy-management.git
    cd maestro-energy-management
    ```
 
@@ -254,28 +255,49 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Discussions**: [GitHub Discussions](https://github.com/your-org/maestro-energy-management/discussions)
 - **Discord**: [Community Server](https://discord.gg/maestro-energy)
 
-## 🗺️ Roadmap
+## 🗺️ Development Progress
 
-### Phase 1 (MVP) - Q1 2024 ✅
-- [x] Smart plug control via Tuya Cloud API
-- [x] Real-time device monitoring
-- [x] Web-based dashboard
-- [x] Basic energy tracking
-- [x] Device scheduling
+### ✅ Sprint 1: Foundation & Architecture (Completed)
+- [x] Project scaffolding with monorepo structure
+- [x] Docker containerization setup
+- [x] Database schema design (MongoDB + Redis)
+- [x] Protocol adapter pattern foundation
+- [x] CI/CD pipeline setup
 
-### Phase 2 - Q2 2024 🔄
-- [ ] Solar panel integration (Modbus/SunSpec)
-- [ ] Battery management systems
-- [ ] Energy flow optimization
-- [ ] Advanced analytics dashboard
-- [ ] Mobile app companion
+### ✅ Sprint 2: Backend Development (Completed)
+- [x] Express.js + TypeScript application structure
+- [x] Tuya OAuth 2.0 authentication system
+- [x] MongoDB database integration with 6 models
+- [x] 35+ API endpoints implementation
+- [x] WebSocket real-time communication
 
-### Phase 3 - Q3 2024 📋
-- [ ] Multi-protocol support expansion
-- [ ] AI-powered energy optimization
-- [ ] Grid integration features
-- [ ] Enterprise multi-tenant support
-- [ ] API marketplace
+### ✅ Sprint 3: Frontend Foundation (Completed)
+- [x] React 18 + TypeScript + Vite setup
+- [x] Material-UI design system with energy theme
+- [x] Zustand state management + React Query
+- [x] Authentication UI with Tuya OAuth integration
+- [x] Core UI components (Layout, DeviceCard, Dashboard)
+- [x] WebSocket client integration for real-time updates
+
+### 🔄 Sprint 4: Integration & Core Features (Next)
+- [ ] Full device workflow implementation
+- [ ] Energy monitoring features with charts
+- [ ] Device management workflows
+- [ ] Testing and quality assurance
+
+### 📋 Sprint 5: Advanced Features & Polish
+- [ ] Advanced device features and automation
+- [ ] Performance optimization
+- [ ] Security hardening
+- [ ] Production deployment preparation
+
+### 📋 Sprint 6: Testing & Launch
+- [ ] Comprehensive testing suite
+- [ ] Beta launch preparation
+- [ ] Production deployment
+- [ ] Phase 2 architecture validation
+
+**Current Progress: 50% MVP Complete** 🚀
 
 ## 📊 Stats
 
