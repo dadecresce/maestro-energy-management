@@ -19,7 +19,7 @@ import {
   Settings as SettingsIcon,
   TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
-import { Device } from '../../types';
+import type { Device } from '@maestro/shared';
 import { useDeviceStore } from '../../stores/devices';
 import { deviceService } from '../../services/device';
 
@@ -172,7 +172,7 @@ const DeviceCard = ({
         )}
 
         {/* Power Information */}
-        {deviceService.deviceSupportsCapability(device, 'energy_meter') && (
+        {deviceService.deviceSupportsCapability(device, 'power_monitoring') && (
           <Box sx={{ mb: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <EnergyIcon color="primary" fontSize="small" />

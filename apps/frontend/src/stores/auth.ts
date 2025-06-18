@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { User, AuthTokens } from '../types';
+import type { User, AuthTokens } from '@maestro/shared';
 import { authService } from '../services/auth';
 
 export interface AuthState {
@@ -33,18 +33,23 @@ export const useAuthStore = create<AuthState>()(
 
       // Actions
       login: async (countryCode = 'US') => {
+        console.log('Auth store: Starting login with country code:', countryCode);
         set({ isLoading: true, error: null });
         
         try {
+          console.log('Auth store: Calling authService.initiateTuyaLogin...');
           const response = await authService.initiateTuyaLogin(countryCode);
+          console.log('Auth store: Received response:', response);
           
           if (response.success && response.data) {
+            console.log('Auth store: Login successful, auth URL:', response.data.authUrl);
             set({ isLoading: false });
             return response.data.authUrl;
           } else {
             throw new Error(response.message || 'Failed to initiate login');
           }
         } catch (error) {
+          console.error('Auth store: Login error:', error);
           const errorMessage = error instanceof Error ? error.message : 'Login failed';
           set({ isLoading: false, error: errorMessage });
           throw error;

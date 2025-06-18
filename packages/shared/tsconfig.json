@@ -6,7 +6,11 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": true,
-    "rootDir": "src"
+    "rootDir": "src",
+    "noEmit": false,
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "Node"
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.spec.ts"]

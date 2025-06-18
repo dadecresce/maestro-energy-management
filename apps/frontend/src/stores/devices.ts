@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { Device, DeviceGridFilter, CommandResult, WebSocketEvent } from '../types';
+import type { Device, DeviceGridFilter, CommandResult, WebSocketEvent } from '@maestro/shared';
 import { deviceService } from '../services/device';
 import { websocketService } from '../services/websocket';
 
@@ -191,10 +191,7 @@ export const useDeviceStore = create<DeviceState>()(
 
       sendCommand: async (deviceId: string, command: string, parameters?: any) => {
         try {
-          // Send command via WebSocket for immediate feedback
-          websocketService.sendDeviceCommand(deviceId, command, parameters);
-          
-          // Also send via HTTP API for reliability
+          // Send command via HTTP API
           const response = await deviceService.sendCommand({
             deviceId,
             command,
@@ -214,7 +211,67 @@ export const useDeviceStore = create<DeviceState>()(
       },
 
       toggleDevice: async (deviceId: string, state: boolean) => {
-        return get().sendCommand(deviceId, 'switch', { value: state });
+        try {
+          // Optimistically update the UI first
+          set((currentState) => ({
+            devices: currentState.devices.map(device => 
+              device._id === deviceId 
+                ? { ...device, status: { ...device.status, switch: state } }
+                : device
+            ),
+            selectedDevice: currentState.selectedDevice?._id === deviceId
+              ? { ...currentState.selectedDevice, status: { ...currentState.selectedDevice.status, switch: state } }
+              : currentState.selectedDevice,
+            lastUpdate: new Date(),
+          }));
+
+          // Send command to backend
+          const result = await get().sendCommand(deviceId, 'switch', { value: state });
+          
+          // Update with actual result from backend (including energy data)
+          if (result?.result) {
+            set((currentState) => ({
+              devices: currentState.devices.map(device => 
+                device._id === deviceId 
+                  ? { 
+                      ...device, 
+                      status: { 
+                        ...device.status, 
+                        switch: result.result.switch,
+                        energy: result.result.energy || device.status.energy
+                      } 
+                    }
+                  : device
+              ),
+              selectedDevice: currentState.selectedDevice?._id === deviceId
+                ? { 
+                    ...currentState.selectedDevice, 
+                    status: { 
+                      ...currentState.selectedDevice.status, 
+                      switch: result.result.switch,
+                      energy: result.result.energy || currentState.selectedDevice.status.energy
+                    } 
+                  }
+                : currentState.selectedDevice,
+              lastUpdate: new Date(),
+            }));
+          }
+          
+          return result;
+        } catch (error) {
+          // Revert optimistic update on error
+          set((currentState) => ({
+            devices: currentState.devices.map(device => 
+              device._id === deviceId 
+                ? { ...device, status: { ...device.status, switch: !state } }
+                : device
+            ),
+            selectedDevice: currentState.selectedDevice?._id === deviceId
+              ? { ...currentState.selectedDevice, status: { ...currentState.selectedDevice.status, switch: !state } }
+              : currentState.selectedDevice,
+          }));
+          throw error;
+        }
       },
 
       clearError: () => {
@@ -318,10 +375,13 @@ useAuthStore.subscribe(
   (state) => state.isAuthenticated,
   (isAuthenticated) => {
     if (isAuthenticated) {
-      // Connect to WebSocket and subscribe to user events
+      // WebSocket disabled for development with simple server
+      // Uncomment when using full backend with WebSocket support
+      /*
       websocketService.connect().then(() => {
         websocketService.subscribeToUserEvents();
       }).catch(console.error);
+      */
     } else {
       // Disconnect WebSocket
       websocketService.disconnect();

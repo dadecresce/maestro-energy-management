@@ -67,7 +67,11 @@ const LoginPage = () => {
       const authUrl = await login(countryCode);
       
       // Redirect to Tuya OAuth
-      window.location.href = authUrl;
+      if (authUrl) {
+        window.location.href = authUrl;
+      } else {
+        console.error('No auth URL received');
+      }
     } catch (error) {
       console.error('Login error:', error);
     }
@@ -133,7 +137,7 @@ const LoginPage = () => {
           )}
 
           {/* Login Form */}
-          <Box component="form" sx={{ mt: 2 }}>
+          <Box component="form" onSubmit={(e) => e.preventDefault()} sx={{ mt: 2 }}>
             {/* Country Selection */}
             <FormControl fullWidth sx={{ mb: 3 }}>
               <InputLabel id="country-label">Country</InputLabel>

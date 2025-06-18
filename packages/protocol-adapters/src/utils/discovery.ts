@@ -50,7 +50,7 @@ export function filterDiscoveries(
     if (filter.capabilities) {
       const deviceCapabilities = discovery.capabilities.map(cap => cap.type);
       const hasAllCapabilities = filter.capabilities.every(cap => 
-        deviceCapabilities.includes(cap)
+        deviceCapabilities.includes(cap as any)
       );
       if (!hasAllCapabilities) {
         return false;

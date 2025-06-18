@@ -20,6 +20,7 @@ import {
   Menu as MenuIcon,
   Dashboard as DashboardIcon,
   Devices as DevicesIcon,
+  Search as SearchIcon,
   Settings as SettingsIcon,
   Logout as LogoutIcon,
   Power as PowerIcon,
@@ -39,6 +40,11 @@ const navigationItems = [
     title: 'Devices',
     path: '/devices',
     icon: <DevicesIcon />,
+  },
+  {
+    title: 'Discovery',
+    path: '/devices/discovery',
+    icon: <SearchIcon />,
   },
   {
     title: 'Settings',

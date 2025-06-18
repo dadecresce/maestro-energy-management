@@ -1,5 +1,5 @@
 import ApiService from './api';
-import { User, AuthTokens, LoginForm, ApiResponse } from '../types';
+import type { User, AuthTokens, LoginForm, ApiResponse } from '@maestro/shared';
 
 export interface TuyaAuthResponse {
   access_token: string;
@@ -21,7 +21,7 @@ class AuthService extends ApiService {
    * Returns the authorization URL for user to consent
    */
   async initiateTuyaLogin(countryCode: string = 'US'): Promise<ApiResponse<{ authUrl: string }>> {
-    return this.post('/auth/tuya/login', { countryCode });
+    return this.get('/auth/tuya/login', { params: { countryCode } });
   }
 
   /**

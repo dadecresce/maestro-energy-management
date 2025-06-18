@@ -13,6 +13,7 @@ import LoginPage from './pages/auth/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import DevicesPage from './pages/device/DevicesPage';
 import DeviceDetailPage from './pages/device/DeviceDetailPage';
+import DeviceDiscoveryPage from './pages/device/DeviceDiscoveryPage';
 import SettingsPage from './pages/SettingsPage';
 import LoadingScreen from './components/common/LoadingScreen';
 
@@ -86,6 +87,16 @@ function App() {
               } 
             />
             
+            {/* Auth callback route */}
+            <Route 
+              path="/auth/tuya/callback" 
+              element={
+                <PublicRoute>
+                  <LoginPage />
+                </PublicRoute>
+              } 
+            />
+            
             {/* Protected routes */}
             <Route 
               path="/" 
@@ -99,6 +110,7 @@ function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="devices" element={<DevicesPage />} />
               <Route path="devices/:deviceId" element={<DeviceDetailPage />} />
+              <Route path="devices/discovery" element={<DeviceDiscoveryPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
             

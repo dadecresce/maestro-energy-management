@@ -18,7 +18,10 @@ export * from './utils/validation';
 // Re-export shared types for convenience
 export {
   ProtocolType,
-  DeviceType,
+  DeviceType
+} from '@maestro/shared/types';
+
+export type {
   DeviceCommand,
   CommandResult,
   DeviceStatusUpdate,

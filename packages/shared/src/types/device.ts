@@ -244,3 +244,17 @@ export const isSolarInverterState = (state: any): state is SolarInverterState =>
 export const isBatteryPackState = (state: any): state is BatteryPackState => {
   return typeof state === 'object' && typeof state.chargeLevel === 'number';
 };
+
+// Device Grid Filter for UI
+export interface DeviceGridFilter {
+  search?: string;
+  deviceType?: DeviceType;
+  status?: DeviceStatus;
+  room?: string;
+  floor?: string;
+  building?: string;
+  isOnline?: boolean;
+  energyRole?: EnergyRole;
+  sortBy?: 'name' | 'type' | 'lastSeen' | 'energyConsumption';
+  sortOrder?: 'asc' | 'desc';
+}

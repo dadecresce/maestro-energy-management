@@ -239,6 +239,7 @@ export class TuyaAdapter extends BaseProtocolAdapter {
         success: response.success,
         timestamp: new Date(),
         responseTime,
+        retryCount: 0,
         result: response.result
       };
       
@@ -253,6 +254,7 @@ export class TuyaAdapter extends BaseProtocolAdapter {
         success: false,
         timestamp: new Date(),
         responseTime: Date.now() - startTime,
+        retryCount: 0,
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
@@ -263,7 +265,7 @@ export class TuyaAdapter extends BaseProtocolAdapter {
    */
   async getDeviceStatus(deviceId: string): Promise<DeviceStatusUpdate> {
     try {
-      const response = await this.apiRequest<TuyaDevice>(`/v1.0/devices/${deviceId}/status`);
+      const response = await this.apiRequest<TuyaDevice>('GET', `/v1.0/devices/${deviceId}/status`);
       const device = response.result;
       
       // Update cache
@@ -426,15 +428,17 @@ export class TuyaAdapter extends BaseProtocolAdapter {
       const signature = this.createSignature(config, timestamp, nonce, accessToken);
       
       // Add required headers
-      config.headers = {
-        ...config.headers,
+      if (!config.headers) {
+        config.headers = {} as any;
+      }
+      Object.assign(config.headers, {
         'client_id': tuyaConfig.authentication.clientId,
         'access_token': accessToken,
         't': timestamp,
         'sign_method': 'HMAC-SHA256',
         'nonce': nonce,
         'sign': signature
-      };
+      });
       
       return config;
     });

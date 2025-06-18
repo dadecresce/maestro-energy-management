@@ -1,5 +1,5 @@
 import ApiService from './api';
-import { Device, DeviceCommand, CommandResult, ApiResponse, PaginatedResponse, DeviceGridFilter } from '../types';
+import type { Device, DeviceCommand, CommandResult, ApiResponse, PaginatedResponse, DeviceGridFilter } from '@maestro/shared';
 
 export interface DeviceDiscoveryResult {
   devices: Device[];
@@ -42,10 +42,10 @@ class DeviceService extends ApiService {
   }
 
   /**
-   * Discover and import devices from Tuya
+   * Discover devices from Tuya Cloud
    */
-  async discoverDevices(): Promise<ApiResponse<DeviceDiscoveryResult>> {
-    return this.post<DeviceDiscoveryResult>('/devices/discover');
+  async discoverDevices(): Promise<ApiResponse<Device[]>> {
+    return this.get<Device[]>('/devices/discover');
   }
 
   /**
@@ -194,14 +194,14 @@ class DeviceService extends ApiService {
    * Check if device supports a specific capability
    */
   deviceSupportsCapability(device: Device, capability: string): boolean {
-    return device.capabilities.some(cap => cap.type === capability);
+    return device.capabilities?.some(cap => cap.type === capability) || false;
   }
 
   /**
    * Get device display name
    */
   getDeviceDisplayName(device: Device): string {
-    return device.name || `${device.specifications.manufacturer} ${device.specifications.model}`;
+    return device.name || `${device.specifications?.manufacturer || 'Unknown'} ${device.specifications?.model || 'Device'}`;
   }
 
   /**

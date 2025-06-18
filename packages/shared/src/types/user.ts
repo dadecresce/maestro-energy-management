@@ -94,10 +94,42 @@ export const UserSchema = z.object({
   auth: z.array(UserAuthSchema).min(1), // Support multiple auth providers
   
   // Profile information
-  profile: UserProfileSchema.default({}),
+  profile: UserProfileSchema.default(() => ({
+    timezone: 'UTC',
+    language: 'en'
+  })),
   
   // User settings and preferences
-  settings: UserSettingsSchema.default({}),
+  settings: UserSettingsSchema.default(() => ({
+    theme: 'auto' as const,
+    dashboardLayout: 'grid' as const,
+    defaultView: 'dashboard' as const,
+    pushNotifications: true,
+    emailNotifications: true,
+    smsNotifications: false,
+    quietHours: {
+      enabled: false,
+      startTime: '22:00',
+      endTime: '07:00'
+    },
+    energy: {
+      energyTariff: 'fixed' as const,
+      currencyCode: 'USD',
+      energyPrice: 0.12,
+      optimizationMode: 'cost' as const,
+      allowAutoControl: false,
+      solarOptimization: false,
+      batteryChargeFromGrid: true,
+      sellExcessToGrid: true,
+      lowBatteryThreshold: 20,
+      highConsumptionThreshold: 5000,
+      offlineDeviceAlert: true,
+      energyReportFrequency: 'weekly' as const
+    },
+    dataSharing: false,
+    analytics: true,
+    crashReporting: true
+  })),
   
   // Account status
   isActive: z.boolean().default(true),
@@ -214,8 +246,40 @@ export const createUserWithDefaults = (email: string, displayName: string): Part
   emailVerified: false,
   role: 'user',
   auth: [],
-  profile: {},
-  settings: {},
+  profile: {
+    timezone: 'UTC',
+    language: 'en'
+  },
+  settings: {
+    theme: 'auto' as const,
+    dashboardLayout: 'grid' as const,
+    defaultView: 'dashboard' as const,
+    pushNotifications: true,
+    emailNotifications: true,
+    smsNotifications: false,
+    quietHours: {
+      enabled: false,
+      startTime: '22:00',
+      endTime: '07:00'
+    },
+    energy: {
+      energyTariff: 'fixed' as const,
+      currencyCode: 'USD',
+      energyPrice: 0.12,
+      optimizationMode: 'cost' as const,
+      allowAutoControl: false,
+      solarOptimization: false,
+      batteryChargeFromGrid: true,
+      sellExcessToGrid: true,
+      lowBatteryThreshold: 20,
+      highConsumptionThreshold: 5000,
+      offlineDeviceAlert: true,
+      energyReportFrequency: 'weekly' as const
+    },
+    dataSharing: false,
+    analytics: true,
+    crashReporting: true
+  },
   isActive: true,
   isSuspended: false,
   stats: {
@@ -232,3 +296,17 @@ export const sanitizeUserForResponse = (user: User): Omit<User, 'auth'> => {
   const { auth, ...sanitizedUser } = user;
   return sanitizedUser;
 };
+
+// Additional types for frontend
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  tokenType?: string;
+}
+
+export interface LoginForm {
+  email: string;
+  password: string;
+  rememberMe?: boolean;
+}

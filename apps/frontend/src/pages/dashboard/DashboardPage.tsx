@@ -20,7 +20,7 @@ import {
 } from '@mui/icons-material';
 import { useDeviceStore } from '../../stores/devices';
 import DeviceCard from '../../components/common/DeviceCard';
-import { Device } from '../../types';
+import type { Device } from '@maestro/shared';
 
 const DashboardPage = () => {
   const {

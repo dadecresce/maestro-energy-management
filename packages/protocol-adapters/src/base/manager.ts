@@ -398,7 +398,7 @@ export class ProtocolAdapterManager extends EventEmitter {
     switch (protocol) {
       case 'tuya':
         const { TuyaAdapter } = await import('../tuya/adapter');
-        return new TuyaAdapter(config);
+        return new TuyaAdapter(config as any);
         
       case 'modbus':
         const { ModbusAdapter } = await import('../modbus/adapter');

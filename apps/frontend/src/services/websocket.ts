@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { WebSocketEvent, DeviceStatusUpdate } from '../types';
+import type { WebSocketEvent, DeviceStatusUpdate } from '@maestro/shared';
 import { authService } from './auth';
 
 export type WebSocketEventType = 
@@ -33,7 +33,7 @@ class WebSocketService {
 
   private readonly defaultConfig: WebSocketConfig = {
     url: import.meta.env.VITE_WS_URL || 'http://localhost:8000',
-    autoConnect: true,
+    autoConnect: false, // Disabled for development with simple server
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
   };
@@ -43,7 +43,7 @@ class WebSocketService {
     this.maxReconnectAttempts = finalConfig.reconnectionAttempts || 5;
     this.reconnectDelay = finalConfig.reconnectionDelay || 1000;
 
-    if (finalConfig.autoConnect) {
+    if (finalConfig.autoConnect && authService.getStoredToken()) {
       this.connect(finalConfig.url);
     }
   }

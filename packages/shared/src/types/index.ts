@@ -109,7 +109,7 @@ export const isApiResponse = <T>(obj: any): obj is ApiResponse<T> => {
 };
 
 export const isPaginatedResponse = <T>(obj: any): obj is PaginatedResponse<T> => {
-  return isApiResponse(obj) && obj.pagination && typeof obj.pagination === 'object';
+  return isApiResponse(obj) && 'pagination' in obj && typeof obj.pagination === 'object';
 };
 
 export const isWebSocketEvent = <T>(obj: any): obj is WebSocketEvent<T> => {
