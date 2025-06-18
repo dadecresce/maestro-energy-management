@@ -7,10 +7,9 @@
  * Initializes the Express.js server with all middleware, routes, and services.
  */
 
-import 'module-alias/register';
 import { MaestroApp } from './app';
-import logger from '@/config/logger';
-import { config } from '@/config/environment';
+import logger from './config/logger';
+import { config } from './config/environment';
 
 /**
  * Main application bootstrap function
