@@ -564,6 +564,15 @@ const DevicesPage = () => {
       </Paper>
 
       {/* Device Grid/List */}
+      {(() => {
+        console.log('DevicesPage render:', { 
+          isLoading, 
+          devicesLength: devices.length, 
+          filteredLength: filteredDevices.length,
+          deviceIds: devices.map(d => d._id)
+        });
+        return null;
+      })()}
       {isLoading && devices.length === 0 ? (
         <Grid container spacing={2}>
           {Array.from({ length: 6 }).map((_, index) => (

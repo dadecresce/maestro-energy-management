@@ -221,8 +221,14 @@ export const useDeviceStore = create<DeviceState>()(
           
           // Update state only once with the result
           if (result?.result) {
-            set((currentState) => ({
-              devices: currentState.devices.map(device => 
+            set((currentState) => {
+              console.log('Before toggle update:', { 
+                deviceCount: currentState.devices.length,
+                targetDeviceId: deviceId,
+                deviceExists: currentState.devices.some(d => d._id === deviceId)
+              });
+              
+              const updatedDevices = currentState.devices.map(device => 
                 device._id === deviceId 
                   ? { 
                       ...device, 
@@ -234,20 +240,29 @@ export const useDeviceStore = create<DeviceState>()(
                       updatedAt: new Date().toISOString()
                     }
                   : device
-              ),
-              selectedDevice: currentState.selectedDevice?._id === deviceId
-                ? { 
-                    ...currentState.selectedDevice, 
-                    status: { 
-                      ...currentState.selectedDevice.status, 
-                      switch: result.result.switch,
-                      energy: result.result.energy || currentState.selectedDevice.status.energy
-                    },
-                    updatedAt: new Date().toISOString()
-                  }
-                : currentState.selectedDevice,
-              lastUpdate: new Date(),
-            }));
+              );
+              
+              console.log('After toggle update:', { 
+                deviceCount: updatedDevices.length,
+                updatedDevice: updatedDevices.find(d => d._id === deviceId)?.status
+              });
+              
+              return {
+                devices: updatedDevices,
+                selectedDevice: currentState.selectedDevice?._id === deviceId
+                  ? { 
+                      ...currentState.selectedDevice, 
+                      status: { 
+                        ...currentState.selectedDevice.status, 
+                        switch: result.result.switch,
+                        energy: result.result.energy || currentState.selectedDevice.status.energy
+                      },
+                      updatedAt: new Date().toISOString()
+                    }
+                  : currentState.selectedDevice,
+                lastUpdate: new Date(),
+              };
+            });
           }
           
           return result;
@@ -355,18 +370,24 @@ websocketService.on('device_offline', useDeviceStore.getState().handleDeviceOffl
 // Subscribe to auth changes to connect/disconnect WebSocket
 import { useAuthStore } from './auth';
 
+// TEMPORARILY DISABLED - This might be causing devices to disappear
+/*
 useAuthStore.subscribe(
   (state) => state.isAuthenticated,
   (isAuthenticated) => {
+    console.log('Auth state changed in device store:', { isAuthenticated });
+    
     if (isAuthenticated) {
+      console.log('User authenticated - keeping devices');
       // WebSocket disabled for development with simple server
       // Uncomment when using full backend with WebSocket support
       /*
       websocketService.connect().then(() => {
         websocketService.subscribeToUserEvents();
       }).catch(console.error);
-      */
+      *//*
     } else {
+      console.log('User not authenticated - clearing devices');
       // Disconnect WebSocket
       websocketService.disconnect();
       
@@ -382,5 +403,6 @@ useAuthStore.subscribe(
     }
   }
 );
+*/
 
 export default useDeviceStore;
