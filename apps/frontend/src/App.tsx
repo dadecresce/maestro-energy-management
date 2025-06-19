@@ -15,6 +15,7 @@ import DevicesPage from './pages/device/DevicesPage';
 import DeviceDetailPage from './pages/device/DeviceDetailPage';
 import DeviceDiscoveryPage from './pages/device/DeviceDiscoveryPage';
 import DeviceOrganizationPage from './pages/device/DeviceOrganizationPage';
+import EnergyPage from './pages/energy/EnergyPage';
 import SettingsPage from './pages/SettingsPage';
 import LoadingScreen from './components/common/LoadingScreen';
 
@@ -113,6 +114,7 @@ function App() {
               <Route path="devices/:deviceId" element={<DeviceDetailPage />} />
               <Route path="devices/discovery" element={<DeviceDiscoveryPage />} />
               <Route path="devices/organization" element={<DeviceOrganizationPage />} />
+              <Route path="energy" element={<EnergyPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
             

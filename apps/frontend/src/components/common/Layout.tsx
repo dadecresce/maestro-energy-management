@@ -25,6 +25,7 @@ import {
   Logout as LogoutIcon,
   Power as PowerIcon,
   Home as HomeIcon,
+  Bolt as EnergyIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/auth';
@@ -41,6 +42,11 @@ const navigationItems = [
     title: 'Devices',
     path: '/devices',
     icon: <DevicesIcon />,
+  },
+  {
+    title: 'Energy',
+    path: '/energy',
+    icon: <EnergyIcon />,
   },
   {
     title: 'Discovery',
