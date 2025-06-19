@@ -53,7 +53,9 @@ const DeviceCard = ({
 
     try {
       const newState = !device.status.switch;
+      console.log('DeviceCard: toggling device', { deviceId: device._id, currentState: device.status.switch, newState });
       await toggleDevice(device._id, newState);
+      console.log('DeviceCard: toggle completed successfully');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to toggle device';
       setError(errorMessage);
@@ -177,17 +179,40 @@ const DeviceCard = ({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <EnergyIcon color="primary" fontSize="small" />
               <Typography variant="body2" fontWeight={500}>
-                Power Usage
+                Energy Monitoring
               </Typography>
             </Box>
             
-            <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main', mb: 1 }}>
               {formatPower(currentPower)}
             </Typography>
+            
+            {/* Detailed Energy Stats */}
+            {device.status.energy && (
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, mb: 1 }}>
+                {device.status.energy.voltage !== undefined && (
+                  <Typography variant="caption" color="text.secondary">
+                    Voltage: {device.status.energy.voltage.toFixed(1)}V
+                  </Typography>
+                )}
+                {device.status.energy.current !== undefined && (
+                  <Typography variant="caption" color="text.secondary">
+                    Current: {device.status.energy.current.toFixed(2)}A
+                  </Typography>
+                )}
+              </Box>
+            )}
             
             {device.status.energy?.energyToday !== undefined && (
               <Typography variant="body2" color="text.secondary">
                 Today: {device.status.energy.energyToday.toFixed(2)} kWh
+              </Typography>
+            )}
+            
+            {/* Energy Cost Estimate */}
+            {currentPower && currentPower > 0 && (
+              <Typography variant="caption" color="success.main">
+                Est. Cost: €{((currentPower / 1000) * 0.22).toFixed(3)}/hr
               </Typography>
             )}
           </Box>

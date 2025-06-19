@@ -35,7 +35,7 @@ const countryCodes = [
 ];
 
 const LoginPage = () => {
-  const [countryCode, setCountryCode] = useState('US');
+  const [countryCode, setCountryCode] = useState('IT');
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   

@@ -24,6 +24,7 @@ import {
   Settings as SettingsIcon,
   Logout as LogoutIcon,
   Power as PowerIcon,
+  Home as HomeIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/auth';
@@ -45,6 +46,11 @@ const navigationItems = [
     title: 'Discovery',
     path: '/devices/discovery',
     icon: <SearchIcon />,
+  },
+  {
+    title: 'Organization',
+    path: '/devices/organization',
+    icon: <HomeIcon />,
   },
   {
     title: 'Settings',

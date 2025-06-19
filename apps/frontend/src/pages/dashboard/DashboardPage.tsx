@@ -20,6 +20,7 @@ import {
 } from '@mui/icons-material';
 import { useDeviceStore } from '../../stores/devices';
 import DeviceCard from '../../components/common/DeviceCard';
+import EnergyChart from '../../components/energy/EnergyChart';
 import type { Device } from '@maestro/shared';
 
 const DashboardPage = () => {
@@ -246,6 +247,13 @@ const DashboardPage = () => {
           </Card>
         </Grid>
       </Grid>
+
+      {/* Energy Chart */}
+      {devices.some(d => d.status.energy?.activePower && d.status.switch) && (
+        <Box sx={{ mb: 4 }}>
+          <EnergyChart devices={devices} chartType="area" />
+        </Box>
+      )}
 
       {/* Recent Devices */}
       <Box sx={{ mb: 3 }}>
