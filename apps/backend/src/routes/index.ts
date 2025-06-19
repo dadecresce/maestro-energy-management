@@ -155,5 +155,4 @@ const setupApiDocumentation = (app: Application): void => {
   });
 };
 
-export { initializeRouteServices };
 export default setupRoutes;

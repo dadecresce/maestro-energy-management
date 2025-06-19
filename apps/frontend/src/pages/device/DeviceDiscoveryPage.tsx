@@ -60,9 +60,12 @@ const DeviceDiscoveryPage = () => {
       const response = await deviceService.discoverDevices();
       
       if (response.success && response.data) {
+        // The backend returns data.discovered which contains the array of devices
+        const discoveredDevicesArray = (response.data as any).discovered || [];
+        
         // Check which devices are already imported
         const existingDeviceIds = new Set(devices.map(d => d.deviceId));
-        const devicesWithImportStatus = response.data.map(device => ({
+        const devicesWithImportStatus = discoveredDevicesArray.map((device: any) => ({
           ...device,
           alreadyImported: existingDeviceIds.has(device.deviceId),
         }));
@@ -74,6 +77,12 @@ const DeviceDiscoveryPage = () => {
           .filter(d => !d.alreadyImported && d.isOnline)
           .map(d => d.deviceId);
         setSelectedDevices(new Set(newDeviceIds));
+        
+        console.log('Discovery completed:', {
+          total: discoveredDevicesArray.length,
+          withImportStatus: devicesWithImportStatus.length,
+          autoSelected: newDeviceIds.length
+        });
       } else {
         throw new Error(response.message || 'Discovery failed');
       }
@@ -87,6 +96,7 @@ const DeviceDiscoveryPage = () => {
       });
     } finally {
       setIsDiscovering(false);
+      console.log('Discovery process finished, isDiscovering set to false');
     }
   };
 
@@ -249,7 +259,7 @@ const DeviceDiscoveryPage = () => {
                       
                       <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
                         <Chip 
-                          label={device.deviceType.replace('_', ' ')} 
+                          label={device.deviceType?.replace('_', ' ') || 'Unknown Device'} 
                           size="small" 
                           variant="outlined" 
                         />

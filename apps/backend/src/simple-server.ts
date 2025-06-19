@@ -8,23 +8,23 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-// Load environment variables
+// Load environment variables FIRST
 import path from 'path';
 const envPath = path.resolve(__dirname, '../../../.env');
 console.log('Loading .env from:', envPath);
 dotenv.config({ path: envPath });
 
-// Import Tuya service
+// Debug environment variables BEFORE importing services
+console.log('Environment variables loaded:');
+console.log('TUYA_CLIENT_ID:', process.env.TUYA_CLIENT_ID ? 'Set' : 'Not set');
+console.log('TUYA_CLIENT_SECRET:', process.env.TUYA_CLIENT_SECRET ? 'Set' : 'Not set');
+console.log('TUYA_BASE_URL:', process.env.TUYA_BASE_URL || 'Not set');
+
+// Import Tuya service AFTER env variables are loaded  
 import { tuyaApiService } from './services/tuya-api';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-
-// Debug environment variables
-console.log('Environment check:');
-console.log('TUYA_CLIENT_ID:', process.env.TUYA_CLIENT_ID ? 'Set' : 'Not set');
-console.log('TUYA_CLIENT_SECRET:', process.env.TUYA_CLIENT_SECRET ? 'Set' : 'Not set');
-console.log('TUYA_BASE_URL:', process.env.TUYA_BASE_URL || 'Using default');
 
 // Middleware
 app.use(cors({
@@ -190,11 +190,11 @@ app.get('/api/devices', (req, res) => {
 });
 
 // Device discovery endpoints
-app.get('/api/devices/discover', async (req, res) => {
+app.post('/api/devices/discover', async (req, res) => {
   console.log('Device discovery requested - Using REAL Tuya API');
   
   try {
-    // REAL TUYA API CODE - NOW ENABLED!
+    // REAL TUYA API CODE
     // First ensure we have a valid token
     const hasToken = await tuyaApiService.getAccessToken();
     if (!hasToken) {
@@ -234,7 +234,7 @@ app.get('/api/devices/discover', async (req, res) => {
           
           return res.json({
             success: true,
-            data: discoveredDevices,
+            data: { discovered: discoveredDevices },
             timestamp: new Date().toISOString()
           });
         }
@@ -242,7 +242,7 @@ app.get('/api/devices/discover', async (req, res) => {
       
       return res.json({
         success: true,
-        data: [],
+        data: { discovered: [] },
         message: 'No devices found. Make sure you have: 1) Linked your Tuya app in IoT Platform, 2) Have devices in your account',
         tip: 'You can also try adding ?userId=YOUR_USER_ID to the URL if you know it',
         timestamp: new Date().toISOString()
@@ -269,19 +269,17 @@ app.get('/api/devices/discover', async (req, res) => {
     
     res.json({
       success: true,
-      data: discoveredDevices,
+      data: { discovered: discoveredDevices },
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {
     console.error('Discovery error:', error);
     
-    // Return a helpful error message
     res.json({
       success: false,
-      data: [],
+      data: { discovered: [] },
       message: 'Failed to discover devices. Check your Tuya credentials and device linking.',
       error: error.message,
-      details: error.response?.data,
       timestamp: new Date().toISOString()
     });
   }

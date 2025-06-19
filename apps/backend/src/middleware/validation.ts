@@ -89,23 +89,33 @@ export const validate = (
  */
 export const commonSchemas = {
   // MongoDB ObjectId validation
-  objectId: Joi.string().regex(/^[0-9a-fA-F]{24}$/).message('Invalid ObjectId format'),
+  objectId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
+    'string.pattern.base': 'Invalid ObjectId format'
+  }),
   
   // UUID validation
-  uuid: Joi.string().uuid().message('Invalid UUID format'),
+  uuid: Joi.string().uuid().messages({
+    'string.guid': 'Invalid UUID format'
+  }),
   
   // Email validation
-  email: Joi.string().email().message('Invalid email format'),
+  email: Joi.string().email().messages({
+    'string.email': 'Invalid email format'
+  }),
   
   // Password validation (strong password)
   password: Joi.string()
     .min(8)
     .max(128)
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
-    .message('Password must be 8-128 characters with at least one lowercase, uppercase, digit, and special character'),
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+    .messages({
+      'string.pattern.base': 'Password must be 8-128 characters with at least one lowercase, uppercase, digit, and special character'
+    }),
   
   // Date validation
-  date: Joi.date().iso().message('Invalid ISO date format'),
+  date: Joi.date().iso().messages({
+    'date.format': 'Invalid ISO date format'
+  }),
   
   // Pagination
   pagination: Joi.object({
@@ -128,13 +138,18 @@ export const commonSchemas = {
 /**
  * Device-related validation schemas
  */
+// Device ID validation schema
+const deviceIdSchema = Joi.string().min(5).max(50).alphanum().messages({
+  'string.alphanum': 'Invalid device ID format'
+});
+
 export const deviceSchemas = {
   // Device ID validation
-  deviceId: Joi.string().min(5).max(50).alphanum().message('Invalid device ID format'),
+  deviceId: deviceIdSchema,
   
   // Device creation/update
   createDevice: Joi.object({
-    deviceId: deviceSchemas.deviceId.required(),
+    deviceId: deviceIdSchema.required(),
     protocol: Joi.string().valid('tuya', 'modbus', 'mqtt').required(),
     deviceType: Joi.string().valid('smart_plug', 'solar_inverter', 'battery_pack').required(),
     name: Joi.string().min(1).max(100).required(),
@@ -244,7 +259,7 @@ export const apiSchemas = {
     data: Joi.any().optional(),
     error: Joi.string().optional(),
     message: Joi.string().optional(),
-    timestamp: Joi.string().iso().required(),
+    timestamp: Joi.date().iso().required(),
     requestId: Joi.string().optional(),
   }),
   

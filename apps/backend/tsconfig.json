@@ -4,6 +4,7 @@
     "target": "ES2022",
     "module": "CommonJS",
     "lib": ["ES2022"],
+    "baseUrl": ".",
     "outDir": "./dist",
     "rootDir": "./src",
     "resolveJsonModule": true,

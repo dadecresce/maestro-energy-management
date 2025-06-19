@@ -1625,5 +1625,4 @@ router.post('/:id/test', validateParams({ id: commonSchemas.objectId }), async (
   }
 });
 
-export { initializeDeviceServices };
 export default router;

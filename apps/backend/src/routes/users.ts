@@ -875,5 +875,4 @@ router.get('/:id/stats', validateParams({ id: commonSchemas.objectId }), async (
   }
 });
 
-export { initializeUserServices };
 export default router;

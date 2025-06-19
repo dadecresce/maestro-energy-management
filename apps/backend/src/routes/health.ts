@@ -667,5 +667,4 @@ async function getWebSocketMetrics() {
   };
 }
 
-export { initializeHealthServices };
 export default router;

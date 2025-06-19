@@ -24,8 +24,12 @@ export class TuyaApiService {
     this.config = {
       clientId: process.env.TUYA_CLIENT_ID || '',
       clientSecret: process.env.TUYA_CLIENT_SECRET || '',
-      baseUrl: process.env.TUYA_BASE_URL || 'https://openapi.tuyaus.com'
+      baseUrl: process.env.TUYA_BASE_URL || ''
     };
+
+    if (!this.config.baseUrl) {
+      throw new Error('Tuya API Base URL (TUYA_BASE_URL) is not configured in environment variables.');
+    }
 
     this.client = axios.create({
       baseURL: this.config.baseUrl,
@@ -42,10 +46,19 @@ export class TuyaApiService {
         const timestamp = Date.now().toString();
         const nonce = Math.random().toString(36).substring(7);
         const method = config.method?.toUpperCase() || 'GET';
-        const path = config.url || '';
+        // Ensure we have the full path for signature generation
+        const fullPath = config.url?.startsWith('/') ? config.url : `/${config.url}`;
         const body = config.data ? JSON.stringify(config.data) : '';
 
-        const signature = this.generateSignature(timestamp, nonce, method, path, body);
+        // For authenticated requests, we need to generate a different signature
+        const signature = this.generateAuthenticatedSignature(
+          timestamp, 
+          nonce, 
+          method, 
+          fullPath, 
+          body,
+          token.access_token
+        );
 
         config.headers['client_id'] = this.config.clientId;
         config.headers['access_token'] = token.access_token;
@@ -59,18 +72,84 @@ export class TuyaApiService {
   }
 
   private generateSignature(timestamp: string, nonce: string, method: string, path: string, body = ''): string {
+    // Empty body should use empty string hash
+    const bodyHash = body ? crypto.createHash('sha256').update(body, 'utf8').digest('hex') : crypto.createHash('sha256').update('', 'utf8').digest('hex');
+    
+    // Construct string to sign according to Tuya's specification
     const stringToSign = [
       method.toUpperCase(),
-      crypto.createHash('sha256').update(body, 'utf8').digest('hex'),
-      '',
+      bodyHash,
+      '', // Empty line for headers (we don't use custom headers)
       path
     ].join('\n');
 
+    // Construct the final string to sign: clientId + accessToken + timestamp + nonce + stringToSign
+    // Note: For token request, accessToken is empty
     const signStr = this.config.clientId + timestamp + nonce + stringToSign;
-    return crypto.createHmac('sha256', this.config.clientSecret)
+    
+    // Debug logging for signature issues
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Signature generation:', {
+        method: method.toUpperCase(),
+        path,
+        bodyHash,
+        timestamp,
+        nonce,
+        clientId: this.config.clientId,
+        stringToSign: stringToSign.replace(/\n/g, '\\n')
+      });
+    }
+    
+    const signature = crypto.createHmac('sha256', this.config.clientSecret)
       .update(signStr, 'utf8')
       .digest('hex')
       .toUpperCase();
+      
+    return signature;
+  }
+
+  private generateAuthenticatedSignature(
+    timestamp: string, 
+    nonce: string, 
+    method: string, 
+    path: string, 
+    body = '',
+    accessToken: string
+  ): string {
+    // Empty body should use empty string hash
+    const bodyHash = body ? crypto.createHash('sha256').update(body, 'utf8').digest('hex') : crypto.createHash('sha256').update('', 'utf8').digest('hex');
+    
+    // Construct string to sign according to Tuya's specification
+    const stringToSign = [
+      method.toUpperCase(),
+      bodyHash,
+      '', // Empty line for headers (we don't use custom headers)
+      path
+    ].join('\n');
+
+    // For authenticated requests, include access token in the sign string
+    const signStr = this.config.clientId + accessToken + timestamp + nonce + stringToSign;
+    
+    // Debug logging for signature issues
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Authenticated signature generation:', {
+        method: method.toUpperCase(),
+        path,
+        bodyHash,
+        timestamp,
+        nonce,
+        clientId: this.config.clientId,
+        hasAccessToken: !!accessToken,
+        stringToSign: stringToSign.replace(/\n/g, '\\n')
+      });
+    }
+    
+    const signature = crypto.createHmac('sha256', this.config.clientSecret)
+      .update(signStr, 'utf8')
+      .digest('hex')
+      .toUpperCase();
+      
+    return signature;
   }
 
   private async ensureValidToken(): Promise<TuyaToken | null> {
@@ -396,5 +475,47 @@ export class TuyaApiService {
   }
 }
 
-// Export singleton instance
-export const tuyaApiService = new TuyaApiService();
+// Lazy-loaded singleton instance
+let tuyaApiServiceInstance: TuyaApiService | null = null;
+
+export const tuyaApiService = {
+  getInstance(): TuyaApiService {
+    if (!tuyaApiServiceInstance) {
+      tuyaApiServiceInstance = new TuyaApiService();
+    }
+    return tuyaApiServiceInstance;
+  },
+  
+  // Proxy all methods to the instance
+  async getAccessToken() {
+    return this.getInstance().getAccessToken();
+  },
+  
+  async discoverDevices() {
+    return this.getInstance().discoverDevices();
+  },
+  
+  async getUserDevices(userId: string) {
+    return this.getInstance().getUserDevices(userId);
+  },
+  
+  async getDeviceStatus(deviceId: string) {
+    return this.getInstance().getDeviceStatus(deviceId);
+  },
+  
+  async getDeviceDetails(deviceId: string) {
+    return this.getInstance().getDeviceDetails(deviceId);
+  },
+  
+  async controlDevice(deviceId: string, commands: Array<{code: string, value: any}>) {
+    return this.getInstance().controlDevice(deviceId, commands);
+  },
+  
+  convertTuyaDevice(tuyaDevice: any) {
+    return this.getInstance().convertTuyaDevice(tuyaDevice);
+  },
+  
+  async getUserInfo(accessToken: string) {
+    return this.getInstance().getUserInfo(accessToken);
+  }
+};

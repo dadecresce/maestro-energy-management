@@ -4,7 +4,7 @@
   "description": "Maestro Energy Management System - Backend API Server",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch -r tsconfig-paths/register src/index.ts",
     "dev:simple": "tsx watch src/simple-server.ts",
     "build": "tsc",
     "start": "node dist/index.js",
@@ -70,6 +70,7 @@
     "prettier": "^3.0.3",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.1",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.1.0",
     "typescript": "^5.2.2"
   },

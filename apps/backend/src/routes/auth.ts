@@ -853,5 +853,4 @@ router.post('/logout-all', authMiddleware?.requireAuth() || ((req, res, next) =>
   }
 });
 
-export { initializeAuthServices };
 export default router;

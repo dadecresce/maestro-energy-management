@@ -45,7 +45,7 @@ class DeviceService extends ApiService {
    * Discover devices from Tuya Cloud
    */
   async discoverDevices(): Promise<ApiResponse<Device[]>> {
-    return this.get<Device[]>('/devices/discover');
+    return this.post<Device[]>('/devices/discover', {});
   }
 
   /**
