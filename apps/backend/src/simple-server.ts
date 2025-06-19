@@ -121,58 +121,7 @@ app.get('/api/auth/me', (req, res) => {
 });
 
 // In-memory device storage for development
-let importedDevices = [
-  {
-    _id: 'device-1',
-    deviceId: 'mock-device-001',
-    name: 'Living Room Plug',
-    deviceType: 'smart_plug',
-    isOnline: true,
-    capabilities: [
-      { type: 'switch', properties: { value: true }, commands: ['on', 'off'] },
-      { type: 'power_monitoring', properties: {}, commands: [] }
-    ],
-    specifications: {
-      manufacturer: 'Tuya',
-      model: 'Smart Plug Pro',
-      maxPower: 3000
-    },
-    status: {
-      switch: true,
-      online: true,
-      energy: {
-        activePower: 250,
-        voltage: 220,
-        current: 1.14
-      }
-    }
-  },
-  {
-    _id: 'device-2', 
-    deviceId: 'mock-device-002',
-    name: 'Bedroom Plug',
-    deviceType: 'smart_plug',
-    isOnline: true,
-    capabilities: [
-      { type: 'switch', properties: { value: false }, commands: ['on', 'off'] },
-      { type: 'power_monitoring', properties: {}, commands: [] }
-    ],
-    specifications: {
-      manufacturer: 'Tuya',
-      model: 'Smart Plug Mini',
-      maxPower: 2000
-    },
-    status: {
-      switch: false,
-      online: true,
-      energy: {
-        activePower: 0,
-        voltage: 220,
-        current: 0
-      }
-    }
-  }
-];
+let importedDevices: any[] = [];
 
 // Mock device endpoints
 app.get('/api/devices', (req, res) => {
