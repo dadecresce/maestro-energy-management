@@ -211,24 +211,14 @@ export const useDeviceStore = create<DeviceState>()(
       },
 
       toggleDevice: async (deviceId: string, state: boolean) => {
-        console.log('toggleDevice called:', { deviceId, state });
-        
         try {
-          // Send command to backend first (remove optimistic update)
+          // Send command to backend
           const result = await get().sendCommand(deviceId, 'switch', { value: state });
-          
-          console.log('Toggle device result:', result);
           
           // Update state only once with the result
           if (result?.result) {
-            set((currentState) => {
-              console.log('Before toggle update:', { 
-                deviceCount: currentState.devices.length,
-                targetDeviceId: deviceId,
-                deviceExists: currentState.devices.some(d => d._id === deviceId)
-              });
-              
-              const updatedDevices = currentState.devices.map(device => 
+            set((currentState) => ({
+              devices: currentState.devices.map(device => 
                 device._id === deviceId 
                   ? { 
                       ...device, 
@@ -240,29 +230,20 @@ export const useDeviceStore = create<DeviceState>()(
                       updatedAt: new Date().toISOString()
                     }
                   : device
-              );
-              
-              console.log('After toggle update:', { 
-                deviceCount: updatedDevices.length,
-                updatedDevice: updatedDevices.find(d => d._id === deviceId)?.status
-              });
-              
-              return {
-                devices: updatedDevices,
-                selectedDevice: currentState.selectedDevice?._id === deviceId
-                  ? { 
-                      ...currentState.selectedDevice, 
-                      status: { 
-                        ...currentState.selectedDevice.status, 
-                        switch: result.result.switch,
-                        energy: result.result.energy || currentState.selectedDevice.status.energy
-                      },
-                      updatedAt: new Date().toISOString()
-                    }
-                  : currentState.selectedDevice,
-                lastUpdate: new Date(),
-              };
-            });
+              ),
+              selectedDevice: currentState.selectedDevice?._id === deviceId
+                ? { 
+                    ...currentState.selectedDevice, 
+                    status: { 
+                      ...currentState.selectedDevice.status, 
+                      switch: result.result.switch,
+                      energy: result.result.energy || currentState.selectedDevice.status.energy
+                    },
+                    updatedAt: new Date().toISOString()
+                  }
+                : currentState.selectedDevice,
+              lastUpdate: new Date(),
+            }));
           }
           
           return result;

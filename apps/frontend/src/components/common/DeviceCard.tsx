@@ -40,18 +40,7 @@ const DeviceCard = ({
   const [error, setError] = useState<string | null>(null);
   const { toggleDevice } = useDeviceStore();
 
-  // Debug device object structure (only log during toggle process)
-  if (isToggling) {
-    console.log('DeviceCard render during toggle:', {
-      deviceId: device._id,
-      deviceName: device.name,
-      deviceStatus: device.status,
-      isOnline: device.isOnline,
-      hasStatus: !!device.status,
-      hasSwitch: !!device.status?.switch,
-      hasEnergy: !!device.status?.energy
-    });
-  }
+  // DeviceCard component for device display
 
   // Safety check for required properties
   if (!device || !device._id || !device.name || !device.status) {
@@ -63,9 +52,7 @@ const DeviceCard = ({
     );
   }
 
-  const handleToggle = async (event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent card click
-    
+  const handleToggle = async () => {
     if (!deviceService.isDeviceControllable(device)) {
       setError('Device is not controllable');
       return;
@@ -76,9 +63,7 @@ const DeviceCard = ({
 
     try {
       const newState = !device.status.switch;
-      console.log('DeviceCard: toggling device', { deviceId: device._id, currentState: device.status.switch, newState });
       await toggleDevice(device._id, newState);
-      console.log('DeviceCard: toggle completed successfully');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to toggle device';
       setError(errorMessage);
@@ -86,6 +71,11 @@ const DeviceCard = ({
     } finally {
       setIsToggling(false);
     }
+  };
+
+  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    event.stopPropagation(); // Prevent bubbling to card
+    handleToggle();
   };
 
   const handleSettingsClick = (event: React.MouseEvent) => {
@@ -256,7 +246,10 @@ const DeviceCard = ({
               {device.status.switch ? 'Turn Off' : 'Turn On'}
             </Typography>
             
-            <Box sx={{ position: 'relative' }}>
+            <Box 
+              sx={{ position: 'relative' }}
+              onClick={(e) => e.stopPropagation()} // Extra protection
+            >
               {isToggling && (
                 <CircularProgress
                   size={24}
@@ -271,7 +264,7 @@ const DeviceCard = ({
               )}
               <Switch
                 checked={device.status.switch || false}
-                onChange={handleToggle}
+                onChange={handleSwitchChange}
                 disabled={isToggling || !device.isOnline}
                 size="medium"
                 sx={{

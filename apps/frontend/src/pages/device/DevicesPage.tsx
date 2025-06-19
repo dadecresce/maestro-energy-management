@@ -564,22 +564,6 @@ const DevicesPage = () => {
       </Paper>
 
       {/* Device Grid/List */}
-      {(() => {
-        const showSkeleton = isLoading && devices.length === 0;
-        const showNoDevices = filteredDevices.length === 0;
-        const showDeviceGrid = !showSkeleton && !showNoDevices;
-        
-        console.log('DevicesPage render decision:', { 
-          isLoading, 
-          devicesLength: devices.length, 
-          filteredLength: filteredDevices.length,
-          showSkeleton,
-          showNoDevices, 
-          showDeviceGrid,
-          deviceIds: devices.map(d => d._id)
-        });
-        return null;
-      })()}
       {/* Simplified rendering logic - prioritize showing devices when they exist */}
       {filteredDevices.length > 0 ? (
         <Grid container spacing={2}>
