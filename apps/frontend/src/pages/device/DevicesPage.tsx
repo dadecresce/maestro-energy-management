@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -93,11 +93,16 @@ const DevicesPage = () => {
   const filteredDevices = useMemo(() => {
     let filtered = [...devices];
     
-    console.log('DevicesPage: filtering devices', { 
-      totalDevices: devices.length, 
-      filters,
-      deviceSample: devices.slice(0, 2).map(d => ({ id: d._id, name: d.name, status: d.status }))
-    });
+    // Only log if significant change to avoid spam
+    const shouldLog = filtered.length !== devices.length || Math.random() < 0.1;
+    if (shouldLog) {
+      console.log('DevicesPage: filtering devices', { 
+        totalDevices: devices.length, 
+        filters,
+        deviceIds: devices.map(d => d._id),
+        deviceSample: devices.slice(0, 2).map(d => ({ id: d._id, name: d.name, status: d.status }))
+      });
+    }
 
     // Search filter
     if (filters.search) {
@@ -167,10 +172,12 @@ const DevicesPage = () => {
       return 0;
     });
 
-    console.log('DevicesPage: after filtering', { 
-      filteredCount: filtered.length,
-      filteredSample: filtered.slice(0, 2).map(d => ({ id: d._id, name: d.name, status: d.status }))
-    });
+    if (shouldLog) {
+      console.log('DevicesPage: after filtering', { 
+        filteredCount: filtered.length,
+        filteredSample: filtered.slice(0, 2).map(d => ({ id: d._id, name: d.name, status: d.status }))
+      });
+    }
 
     return filtered;
   }, [devices, filters]);
@@ -205,9 +212,9 @@ const DevicesPage = () => {
     }
   };
 
-  const handleDeviceClick = (device: Device) => {
+  const handleDeviceClick = useCallback((device: Device) => {
     navigate(`/devices/${device._id}`);
-  };
+  }, [navigate]);
 
   const handleDeviceSelect = (deviceId: string, selected: boolean) => {
     const newSelected = new Set(selectedDevices);
@@ -287,9 +294,11 @@ const DevicesPage = () => {
         
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Tooltip title="Refresh devices">
-            <IconButton onClick={handleRefresh} disabled={isLoading}>
-              <RefreshIcon />
-            </IconButton>
+            <span>
+              <IconButton onClick={handleRefresh} disabled={isLoading}>
+                <RefreshIcon />
+              </IconButton>
+            </span>
           </Tooltip>
           
           <Button

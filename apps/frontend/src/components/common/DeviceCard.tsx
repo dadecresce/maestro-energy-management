@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import {
   Card,
   CardContent,
@@ -289,4 +289,4 @@ const DeviceCard = ({
   );
 };
 
-export default DeviceCard;
+export default memo(DeviceCard);

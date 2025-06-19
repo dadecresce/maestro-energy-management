@@ -211,30 +211,15 @@ export const useDeviceStore = create<DeviceState>()(
       },
 
       toggleDevice: async (deviceId: string, state: boolean) => {
-        // Store original state for error rollback
-        const originalDevices = get().devices;
-        const originalSelectedDevice = get().selectedDevice;
+        console.log('toggleDevice called:', { deviceId, state });
         
         try {
-          // Optimistically update the UI first
-          set((currentState) => ({
-            devices: currentState.devices.map(device => 
-              device._id === deviceId 
-                ? { ...device, status: { ...device.status, switch: state } }
-                : device
-            ),
-            selectedDevice: currentState.selectedDevice?._id === deviceId
-              ? { ...currentState.selectedDevice, status: { ...currentState.selectedDevice.status, switch: state } }
-              : currentState.selectedDevice,
-            lastUpdate: new Date(),
-          }));
-
-          // Send command to backend
+          // Send command to backend first (remove optimistic update)
           const result = await get().sendCommand(deviceId, 'switch', { value: state });
           
           console.log('Toggle device result:', result);
           
-          // Update with actual result from backend (including energy data)
+          // Update state only once with the result
           if (result?.result) {
             set((currentState) => ({
               devices: currentState.devices.map(device => 
@@ -245,7 +230,8 @@ export const useDeviceStore = create<DeviceState>()(
                         ...device.status, 
                         switch: result.result.switch,
                         energy: result.result.energy || device.status.energy
-                      } 
+                      },
+                      updatedAt: new Date().toISOString()
                     }
                   : device
               ),
@@ -256,7 +242,8 @@ export const useDeviceStore = create<DeviceState>()(
                       ...currentState.selectedDevice.status, 
                       switch: result.result.switch,
                       energy: result.result.energy || currentState.selectedDevice.status.energy
-                    } 
+                    },
+                    updatedAt: new Date().toISOString()
                   }
                 : currentState.selectedDevice,
               lastUpdate: new Date(),
@@ -265,12 +252,6 @@ export const useDeviceStore = create<DeviceState>()(
           
           return result;
         } catch (error) {
-          // Revert to original state on error
-          set({
-            devices: originalDevices,
-            selectedDevice: originalSelectedDevice,
-          });
-          
           const errorMessage = error instanceof Error ? error.message : 'Failed to toggle device';
           set({ error: errorMessage });
           throw error;
