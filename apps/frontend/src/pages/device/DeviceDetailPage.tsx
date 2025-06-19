@@ -164,7 +164,7 @@ const DeviceDetailPage = () => {
 
   const deviceDisplayName = deviceService.getDeviceDisplayName(device);
   const isControllable = deviceService.isDeviceControllable(device);
-  const supportsEnergyMonitoring = deviceService.deviceSupportsCapability(device, 'power_monitoring');
+  const supportsEnergyMonitoring = !!(device as any).status?.energy || deviceService.deviceSupportsCapability(device, 'power_monitoring');
   const currentPower = (device as any).status?.energy?.activePower;
 
   const renderOverviewTab = () => (
@@ -312,6 +312,18 @@ const DeviceDetailPage = () => {
         </Card>
       </Grid>
 
+      {/* Energy Consumption Chart */}
+      {supportsEnergyMonitoring && (device as any).status?.energy && (
+        <Grid item xs={12}>
+          <EnergyChart 
+            devices={[device]} 
+            chartType="area" 
+            timeRange="24h"
+            showLegend={false}
+          />
+        </Grid>
+      )}
+
       {/* Device Specifications */}
       <Grid item xs={12}>
         <Card>
@@ -439,7 +451,7 @@ const DeviceDetailPage = () => {
               {device.capabilities.map((capability, index) => (
                 <ListItem key={index} disablePadding>
                   <ListItemIcon>
-                    <CheckCircle color="success" />
+                    <SuccessIcon color="success" />
                   </ListItemIcon>
                   <ListItemText 
                     primary={capability.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}

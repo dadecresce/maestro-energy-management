@@ -187,12 +187,12 @@ const DeviceCard = ({
         )}
 
         {/* Power Information */}
-        {deviceService.deviceSupportsCapability(device, 'power_monitoring') && (
+        {(device.status.energy || deviceService.deviceSupportsCapability(device, 'power_monitoring')) && (
           <Box sx={{ mb: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <EnergyIcon color="primary" fontSize="small" />
               <Typography variant="body2" fontWeight={500}>
-                Energy Monitoring
+                Power Consumption
               </Typography>
             </Box>
             
