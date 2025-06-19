@@ -285,7 +285,7 @@ app.post('/api/devices/discover', async (req, res) => {
   }
 });
 
-app.post('/api/devices/import', (req, res) => {
+app.post('/api/devices/import', async (req, res) => {
   console.log('Device import requested');
   console.log('Device IDs to import:', req.body.deviceIds);
   
@@ -299,77 +299,47 @@ app.post('/api/devices/import', (req, res) => {
     });
   }
 
-  // Get discovered devices data (same as discovery endpoint)
-  const discoveredDevices = [
-    {
-      deviceId: 'tuya-001',
-      name: 'Smart Plug Pro',
-      deviceType: 'smart_plug',
-      manufacturer: 'Tuya',
-      model: 'TYSP-001',
-      isOnline: true,
-      capabilities: [
-        { type: 'switch', properties: { value: false }, commands: ['on', 'off'] },
-        { type: 'power_monitoring', properties: {}, commands: [] }
-      ],
-      specifications: {
-        manufacturer: 'Tuya',
-        model: 'TYSP-001',
-        maxPower: 3000
-      }
-    },
-    {
-      deviceId: 'tuya-002',
-      name: 'LED Strip Controller',
-      deviceType: 'led_strip',
-      manufacturer: 'Tuya',
-      model: 'TYLED-002',
-      isOnline: true,
-      capabilities: [
-        { type: 'switch', properties: { value: false }, commands: ['on', 'off'] },
-        { type: 'brightness', properties: { value: 100 }, commands: ['setBrightness'] },
-        { type: 'color', properties: { hue: 0, saturation: 100 }, commands: ['setColor'] }
-      ],
-      specifications: {
-        manufacturer: 'Tuya',
-        model: 'TYLED-002',
-        maxPower: 50
-      }
-    },
-    {
-      deviceId: 'tuya-003',
-      name: 'Smart Switch',
-      deviceType: 'smart_switch',
-      manufacturer: 'Tuya',
-      model: 'TYSW-003',
-      isOnline: false,
-      capabilities: [
-        { type: 'switch', properties: { value: false }, commands: ['on', 'off'] }
-      ],
-      specifications: {
-        manufacturer: 'Tuya',
-        model: 'TYSW-003',
-        maxPower: 2000
-      }
-    },
-    {
-      deviceId: 'tuya-004',
-      name: 'Power Monitor',
-      deviceType: 'power_monitor',
-      manufacturer: 'Tuya',
-      model: 'TYPM-004',
-      isOnline: true,
-      capabilities: [
-        { type: 'power_monitoring', properties: {}, commands: [] },
-        { type: 'energy_monitoring', properties: {}, commands: [] }
-      ],
-      specifications: {
-        manufacturer: 'Tuya',
-        model: 'TYPM-004',
-        maxPower: 5000
+  try {
+    // Get real discovered devices from Tuya API (same logic as discovery endpoint)
+    const hasToken = await tuyaApiService.getAccessToken();
+    if (!hasToken) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to authenticate with Tuya API for import',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Get devices from Tuya API
+    let tuyaDevices = await tuyaApiService.discoverDevices();
+    
+    // If no devices found through standard discovery, try with configured user ID
+    if (tuyaDevices.length === 0) {
+      const userId = process.env.TUYA_USER_ID;
+      if (userId) {
+        console.log(`Trying with user ID for import: ${userId}`);
+        const userDevices = await tuyaApiService.getUserDevices(userId);
+        tuyaDevices = userDevices;
       }
     }
-  ];
+
+    // Convert Tuya devices to our format with status
+    const discoveredDevices = await Promise.all(
+      tuyaDevices.map(async (tuyaDevice) => {
+        try {
+          // Get device status
+          const status = await tuyaApiService.getDeviceStatus(tuyaDevice.id);
+          if (status.length > 0) {
+            tuyaDevice.status = status;
+          }
+        } catch (e) {
+          console.log(`Failed to get status for device ${tuyaDevice.id} during import`);
+        }
+        return tuyaApiService.convertTuyaDevice(tuyaDevice);
+      })
+    );
+
+    console.log(`Found ${discoveredDevices.length} real devices available for import`);
 
   // Find devices to import and convert to stored format
   let imported = 0;
@@ -391,7 +361,7 @@ app.post('/api/devices/import', (req, res) => {
       continue;
     }
 
-    // Create new device with proper structure
+    // Create new device with proper structure using real status
     const newDevice = {
       _id: `device-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       deviceId: discoveredDevice.deviceId,
@@ -400,15 +370,8 @@ app.post('/api/devices/import', (req, res) => {
       isOnline: discoveredDevice.isOnline,
       capabilities: discoveredDevice.capabilities,
       specifications: discoveredDevice.specifications,
-      status: {
-        switch: false,
-        online: discoveredDevice.isOnline,
-        energy: discoveredDevice.deviceType === 'power_monitor' ? {
-          activePower: 0,
-          voltage: 220,
-          current: 0
-        } : undefined
-      },
+      status: discoveredDevice.status, // Use real status from Tuya API
+      tuyaData: discoveredDevice.tuyaData, // Include Tuya-specific data
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -417,18 +380,28 @@ app.post('/api/devices/import', (req, res) => {
     imported++;
   }
 
-  console.log(`Import result: ${imported} imported, ${skipped.length} skipped, ${errors.length} errors`);
+    console.log(`Import result: ${imported} imported, ${skipped.length} skipped, ${errors.length} errors`);
 
-  res.json({
-    success: true,
-    data: {
-      imported,
-      skipped: skipped.length,
-      errors
-    },
-    message: `Successfully imported ${imported} devices${skipped.length > 0 ? `, skipped ${skipped.length} already imported` : ''}`,
-    timestamp: new Date().toISOString()
-  });
+    res.json({
+      success: true,
+      data: {
+        imported,
+        skipped: skipped.length,
+        errors
+      },
+      message: `Successfully imported ${imported} devices${skipped.length > 0 ? `, skipped ${skipped.length} already imported` : ''}`,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error: any) {
+    console.error('Import error:', error);
+    
+    res.status(500).json({
+      success: false,
+      message: 'Failed to import devices. Check your Tuya credentials and device linking.',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Device control endpoints
