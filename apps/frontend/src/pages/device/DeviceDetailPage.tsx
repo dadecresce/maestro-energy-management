@@ -218,13 +218,13 @@ const DeviceDetailPage = () => {
               <ListItem disablePadding>
                 <ListItemText 
                   primary="Device Type" 
-                  secondary={device.deviceType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  secondary={device.deviceType?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown'}
                 />
               </ListItem>
               <ListItem disablePadding>
                 <ListItemText 
                   primary="Protocol" 
-                  secondary={device.protocol.toUpperCase()}
+                  secondary={device.protocol?.toUpperCase() || 'Unknown'}
                 />
               </ListItem>
               <ListItem disablePadding>
@@ -324,22 +324,22 @@ const DeviceDetailPage = () => {
                 <TableBody>
                   <TableRow>
                     <TableCell><strong>Manufacturer</strong></TableCell>
-                    <TableCell>{device.specifications.manufacturer}</TableCell>
+                    <TableCell>{device.specifications?.manufacturer || 'Unknown'}</TableCell>
                     <TableCell><strong>Model</strong></TableCell>
-                    <TableCell>{device.specifications.model}</TableCell>
+                    <TableCell>{device.specifications?.model || 'Unknown'}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell><strong>Device ID</strong></TableCell>
-                    <TableCell>{device.deviceId}</TableCell>
+                    <TableCell>{device.deviceId || 'Unknown'}</TableCell>
                     <TableCell><strong>Protocol</strong></TableCell>
-                    <TableCell>{device.protocol.toUpperCase()}</TableCell>
+                    <TableCell>{device.protocol?.toUpperCase() || 'Unknown'}</TableCell>
                   </TableRow>
-                  {device.specifications.maxPower && (
+                  {device.specifications?.maxPower && (
                     <TableRow>
                       <TableCell><strong>Max Power</strong></TableCell>
                       <TableCell>{device.specifications.maxPower}W</TableCell>
                       <TableCell><strong>Voltage</strong></TableCell>
-                      <TableCell>{device.specifications.voltage || 'N/A'}V</TableCell>
+                      <TableCell>{device.specifications?.voltage || 'N/A'}V</TableCell>
                     </TableRow>
                   )}
                   <TableRow>
@@ -526,7 +526,7 @@ const DeviceDetailPage = () => {
             {deviceDisplayName}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {device.specifications.manufacturer} {device.specifications.model}
+            {device.specifications?.manufacturer || 'Unknown'} {device.specifications?.model || 'Model'}
           </Typography>
         </Box>
         
