@@ -40,6 +40,29 @@ const DeviceCard = ({
   const [error, setError] = useState<string | null>(null);
   const { toggleDevice } = useDeviceStore();
 
+  // Debug device object structure (only log during toggle process)
+  if (isToggling) {
+    console.log('DeviceCard render during toggle:', {
+      deviceId: device._id,
+      deviceName: device.name,
+      deviceStatus: device.status,
+      isOnline: device.isOnline,
+      hasStatus: !!device.status,
+      hasSwitch: !!device.status?.switch,
+      hasEnergy: !!device.status?.energy
+    });
+  }
+
+  // Safety check for required properties
+  if (!device || !device._id || !device.name || !device.status) {
+    console.error('DeviceCard: Invalid device object:', device);
+    return (
+      <Card sx={{ p: 2 }}>
+        <Typography color="error">Invalid device data</Typography>
+      </Card>
+    );
+  }
+
   const handleToggle = async (event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent card click
     

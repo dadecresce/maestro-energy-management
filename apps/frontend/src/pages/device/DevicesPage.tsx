@@ -565,53 +565,23 @@ const DevicesPage = () => {
 
       {/* Device Grid/List */}
       {(() => {
-        console.log('DevicesPage render:', { 
+        const showSkeleton = isLoading && devices.length === 0;
+        const showNoDevices = filteredDevices.length === 0;
+        const showDeviceGrid = !showSkeleton && !showNoDevices;
+        
+        console.log('DevicesPage render decision:', { 
           isLoading, 
           devicesLength: devices.length, 
           filteredLength: filteredDevices.length,
+          showSkeleton,
+          showNoDevices, 
+          showDeviceGrid,
           deviceIds: devices.map(d => d._id)
         });
         return null;
       })()}
-      {isLoading && devices.length === 0 ? (
-        <Grid container spacing={2}>
-          {Array.from({ length: 6 }).map((_, index) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-              <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 1 }} />
-            </Grid>
-          ))}
-        </Grid>
-      ) : filteredDevices.length === 0 ? (
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography variant="h6" gutterBottom>
-            {devices.length === 0 ? 'No devices found' : 'No devices match your filters'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            {devices.length === 0 
-              ? 'Start by discovering devices from your Tuya account'
-              : 'Try adjusting your search criteria or clearing filters'
-            }
-          </Typography>
-          {devices.length === 0 ? (
-            <Button 
-              variant="contained" 
-              startIcon={<AddIcon />}
-              onClick={() => navigate('/devices/discovery')}
-              sx={{ mt: 2 }}
-            >
-              Discover Devices
-            </Button>
-          ) : (
-            <Button 
-              variant="outlined" 
-              onClick={clearFilters}
-              sx={{ mt: 2 }}
-            >
-              Clear Filters
-            </Button>
-          )}
-        </Paper>
-      ) : (
+      {/* Simplified rendering logic - prioritize showing devices when they exist */}
+      {filteredDevices.length > 0 ? (
         <Grid container spacing={2}>
           {filteredDevices.map((device) => (
             <Grid 
@@ -647,6 +617,44 @@ const DevicesPage = () => {
             </Grid>
           ))}
         </Grid>
+      ) : isLoading && devices.length === 0 ? (
+        <Grid container spacing={2}>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+              <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 1 }} />
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h6" gutterBottom>
+            {devices.length === 0 ? 'No devices found' : 'No devices match your filters'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            {devices.length === 0 
+              ? 'Start by discovering devices from your Tuya account'
+              : 'Try adjusting your search criteria or clearing filters'
+            }
+          </Typography>
+          {devices.length === 0 ? (
+            <Button 
+              variant="contained" 
+              startIcon={<AddIcon />}
+              onClick={() => navigate('/devices/discovery')}
+              sx={{ mt: 2 }}
+            >
+              Discover Devices
+            </Button>
+          ) : (
+            <Button 
+              variant="outlined" 
+              onClick={clearFilters}
+              sx={{ mt: 2 }}
+            >
+              Clear Filters
+            </Button>
+          )}
+        </Paper>
       )}
 
       {/* Floating Action Button */}
